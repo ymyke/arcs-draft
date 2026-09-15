@@ -251,16 +251,23 @@ header {
 .leader .num { margin-top: auto; padding: 3px 11px; font-size: 11px; color: rgba(231, 217, 189, .5); border-top: 1px solid rgba(231, 217, 189, .16); }
 
 .card.pickable { cursor: pointer; }
+.lore .claim { top: 37px; }
 .card.pickable:hover { transform: translateY(-5px); }
 .card.pickable:hover .face { box-shadow: 0 8px 0 rgba(0, 0, 0, .35), 0 0 0 2px var(--gold); }
+.card.blocked, .card.taken { cursor: pointer; }
 .card.blocked .face { opacity: .46; filter: saturate(.5); }
 .card.taken .face { opacity: .34; filter: grayscale(.65); }
+.card .face { transition: opacity .16s ease, filter .16s ease; }
+.card.peek .face { opacity: 1; filter: none; }
+@media (hover: hover) {
+  .card.blocked:hover .face, .card.taken:hover .face { opacity: 1; filter: none; }
+}
 
 .claim {
   position: absolute;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%) rotate(-7deg);
+  top: 43px;
+  transform: translate(-50%, -50%) rotate(-5deg);
   font-family: var(--display);
   font-weight: 700;
   font-size: 19px;

@@ -153,11 +153,16 @@ function cardView(state, kind, slot) {
       <div class="body">${renderCardText(card.text)}</div>
       ${footer}
     </div>`;
-  const classes = `card ${kind} ${owner ? 'taken' : pickable ? 'pickable' : 'blocked'}`;
   if (pickable) {
-    return `<button class="${classes}" data-action="pick" data-kind="${kind}" data-slot="${slot}" aria-label="Take ${esc(card.name)}">${face}</button>`;
+    return `<button class="card ${kind} pickable" data-action="pick" data-kind="${kind}" data-slot="${slot}" aria-label="Take ${esc(card.name)}">${face}</button>`;
   }
-  return `<div class="${classes}">${face}${owner ? `<div class="claim">${esc(owner)}</div>` : ''}</div>`;
+  const peeked = state.peek === `${kind}:${slot}`;
+  const label = owner ? `${card.name}, taken by ${owner}` : card.name;
+  return `
+    <div class="card ${kind} ${owner ? 'taken' : 'blocked'}${peeked ? ' peek' : ''}" data-action="peek" data-kind="${kind}" data-slot="${slot}"
+         role="button" tabindex="0" aria-pressed="${peeked}" aria-label="${esc(label)} — show clearly">
+      ${face}${owner ? `<div class="claim">${esc(owner)}</div>` : ''}
+    </div>`;
 }
 
 function rowView(state, kind, slots, heading) {
@@ -303,6 +308,7 @@ export function mount(root, win = window) {
     draft: null,
     justPicked: false,
     shareOpen: false,
+    peek: null,
     problem: null,
     names: EMPTY_NAMES(),
     options: { ...DEFAULT_OPTIONS },
@@ -318,7 +324,7 @@ export function mount(root, win = window) {
   }
 
   function showBoard(draft, { shareOpen = false, justPicked = false } = {}) {
-    Object.assign(state, { screen: 'board', draft, shareOpen, justPicked, problem: null });
+    Object.assign(state, { screen: 'board', draft, shareOpen, justPicked, peek: null, problem: null });
     win.history.replaceState(null, '', `#${encodeDraft(draft)}`);
     render();
   }
@@ -375,6 +381,11 @@ export function mount(root, win = window) {
       button.textContent = copied ? 'Copied' : 'Copy it from above';
       if (copied) win.setTimeout(() => { button.textContent = 'Copy link'; }, 1800);
     },
+    peek(card) {
+      const key = `${card.dataset.kind}:${card.dataset.slot}`;
+      state.peek = state.peek === key ? null : key;
+      render(`[data-action="peek"][data-kind="${card.dataset.kind}"][data-slot="${card.dataset.slot}"]`);
+    },
     'show-share'() {
       state.shareOpen = true;
       render('.modal .solid');
@@ -408,6 +419,11 @@ export function mount(root, win = window) {
   });
 
   root.addEventListener('keydown', event => {
+    if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('[data-action="peek"]')) {
+      event.preventDefault();
+      actions.peek(event.target);
+      return;
+    }
     if (event.key !== 'Enter') return;
     if (event.target.matches('input[data-name]')) actions.start();
     else if (event.target.id === 'code-input') actions['load-code']();

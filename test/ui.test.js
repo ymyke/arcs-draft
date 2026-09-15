@@ -1,7 +1,7 @@
 import { afterEach, describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { decodeDraft, encodeDraft } from '../src/codec.js';
-import { DEFAULT_OPTIONS, dealDraft } from '../src/draft.js';
+import { DEFAULT_OPTIONS, applyPick, dealDraft } from '../src/draft.js';
 import { PLAYERS, dealOnPage, openPage, seededRandom } from './helpers.js';
 
 const pages = [];
@@ -82,6 +82,22 @@ describe('a draft passed around by link', () => {
       assert.equal(decodeDraft(hash).picks.length, expectedPicks);
     });
   }
+
+  test('a taken card can be brought forward to read, and dimmed again', () => {
+    const { draft } = dealDraft(PLAYERS, DEFAULT_OPTIONS, seededRandom(6));
+    const page = open(`#${encodeDraft(applyPick(draft, 'lore', 0))}`);
+    const taken = () => page.$('.card.taken');
+    assert.equal(taken().querySelector('.claim')?.textContent, draft.names[3]);
+    assert.equal(taken().querySelector('.claim').closest('.face'), null, 'the name stamp sits outside the dimmed face');
+
+    taken().click();
+    assert.ok(taken().classList.contains('peek'));
+    assert.equal(taken().getAttribute('aria-pressed'), 'true');
+    assert.equal(page.$$('button.card.pickable').length > 0, true, 'reading a card does not lock the board');
+
+    page.press('.card.taken', 'Enter');
+    assert.ok(!taken().classList.contains('peek'));
+  });
 
   test('in deal and pick only the current player’s hand is clickable', () => {
     const { draft } = dealDraft(['Ann', 'Bo', 'Cy'], { ...DEFAULT_OPTIONS, pool: 'all', offer: 'deal' }, seededRandom(4));
