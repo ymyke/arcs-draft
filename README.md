@@ -1,6 +1,6 @@
 # Arcs draft
 
-A small web page for drafting leader and lore cards in [Arcs](https://boardgamegeek.com/boardgame/359871/arcs) when the players aren't sitting at one screen. One person enters the names and deals. Every pick produces a new link, which goes to the next player. The whole draft lives in that link, so there is no server, no account and nothing to install.
+A small web page for drafting leader and lore cards in [Arcs](https://boardgamegeek.com/boardgame/359871/arcs) before game night. Everyone picks in their own time, with room to think about combos, and setup at the table goes quickly. One person enters the names and deals. Every pick produces a new link, which goes to the next player. The whole draft lives in that link, so there is no server, no account and nothing to install.
 
 Unofficial fan tool, not affiliated with Leder Games or Buried Giant Studios. Card text comes from the [official card library](https://cards.buriedgiant.com).
 

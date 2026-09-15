@@ -7,6 +7,7 @@ import {
 import { decodeDraft, encodeDraft } from './codec.js';
 import { escapeHTML as esc, renderCardText } from './text.js';
 
+const REPO_URL = 'https://github.com/ymyke/arcs-draft';
 const EMPTY_NAMES = () => ['', '', '', ''];
 const BAD_LINK = 'That doesn’t describe a legal draft. Check it was copied whole, or ask for it again.';
 
@@ -57,6 +58,10 @@ function optionsSummary(options) {
 
 /* ---------- views ---------- */
 
+const creditsView = () => `
+  <span>Unofficial fan tool, not affiliated with Leder Games. Card text from the <a href="https://cards.buriedgiant.com" target="_blank" rel="noopener">official card library</a>.</span>
+  <a href="${REPO_URL}" target="_blank" rel="noopener">Source on GitHub</a>`;
+
 const problemView = problem => (problem ? `<p class="err" role="alert">${esc(problem)}</p>` : '');
 
 function optionView(field, options) {
@@ -82,7 +87,16 @@ function setupView({ names, options, problem }) {
   return `
     <div class="setup">
       <h1>Arcs draft</h1>
-      <p class="sub">Enter who’s playing. Turn order is rolled at random, then the leader and lore cards are drawn face up for the draft.</p>
+      <p class="sub">Draft your leaders and lore before game night. Everyone picks in their own time, and the table is set up in minutes.</p>
+      <section class="panel how">
+        <h2>How it works</h2>
+        <ol>
+          <li>Enter the players and deal. Turn order is shuffled and the cards are drawn face up.</li>
+          <li>Send the link to whoever picks first. They take a card and get a new link for the next player.</li>
+          <li>Keep passing the newest link until everyone holds their cards.</li>
+        </ol>
+        <p class="hint">Nothing is stored anywhere — no server, no account. The whole draft lives in the link, so keep the latest one.</p>
+      </section>
       <section class="panel">
         <h2>Players</h2>
         <p>Two to four, as the box allows. Order here doesn’t matter — it gets shuffled.</p>
@@ -99,6 +113,7 @@ function setupView({ names, options, problem }) {
         <p>The defaults follow the rulebook.</p>
         ${OPTION_FIELDS.map(field => optionView(field, options)).join('')}
       </section>
+      <footer class="foot">${creditsView()}</footer>
     </div>`;
 }
 
@@ -117,6 +132,7 @@ function openView({ problem }) {
         </div>
         ${problemView(problem)}
       </section>
+      <footer class="foot">${creditsView()}</footer>
     </div>`;
 }
 
@@ -253,7 +269,7 @@ function boardView(state, link) {
     <footer class="foot">
       <span class="note">Turn order at the table: ${draft.names.map(esc).join(', ')}.</span>
       <button class="ghost" data-action="new-game">New game</button>
-      <span>Unofficial fan tool, not affiliated with Leder Games. Card text from the <a href="https://cards.buriedgiant.com" target="_blank" rel="noopener">official card library</a>.</span>
+      ${creditsView()}
     </footer>
     ${state.shareOpen ? shareView(draft, link) : ''}`;
 }

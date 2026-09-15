@@ -22,6 +22,12 @@ describe('setup', () => {
     assert.equal(page.$('select[data-option="offer"]').value, 'rulebook');
   });
 
+  test('explains the link-passing flow and that nothing is stored', () => {
+    const page = open();
+    assert.match(page.text('.how'), /Send the link to whoever picks first/);
+    assert.match(page.text('.how'), /Nothing is stored anywhere/);
+  });
+
   test('explains missing players', () => {
     const page = open();
     page.type('input[data-name="0"]', 'Ann');
@@ -124,6 +130,16 @@ describe('links and dialogs', () => {
     page.click('[data-action="new-game"]');
     assert.equal(page.$$('input[data-name]').length, 4);
     assert.equal(page.hash(), '');
+  });
+
+  test('every screen links to the source on GitHub', () => {
+    const page = open();
+    const repoLink = () => page.$('.foot a[href="https://github.com/ymyke/arcs-draft"]');
+    assert.ok(repoLink(), 'setup');
+    page.click('[data-action="open-screen"]');
+    assert.ok(repoLink(), 'open a link');
+    const board = open(draftHash());
+    assert.ok(board.$('.foot a[href="https://github.com/ymyke/arcs-draft"]'), 'board');
   });
 
   test('player names cannot inject markup', () => {

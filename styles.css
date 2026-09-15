@@ -91,6 +91,11 @@ input[type=text]::placeholder { color: rgba(231, 217, 189, .26); }
 .panel h2 { font-family: var(--display); font-weight: 700; font-size: 22px; margin: 0 0 4px; color: var(--bone); }
 .panel p { margin: 0 0 16px; color: var(--parch-2); font-size: 14px; }
 .panel input + .setup-actions { margin-top: 14px; }
+.how ol { margin: 0 0 12px; padding-left: 20px; color: var(--parch); font-size: 14px; }
+.how li { margin: 0 0 5px; }
+.how li::marker { color: var(--gold); font-family: var(--display); font-weight: 700; }
+.how .hint { margin: 0; font-size: 13px; color: var(--parch-2); }
+.setup .foot { margin-top: 26px; }
 
 .seats-in { display: flex; flex-direction: column; gap: 9px; margin-bottom: 16px; }
 .seat-row { display: flex; gap: 9px; align-items: center; }
