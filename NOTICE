@@ -4,9 +4,10 @@ Copyright (c) 2026 ymyke
 The MIT License in LICENSE covers the code in this repository only.
 
 The Arcs card names and card text in src/cards.js are the property of Buried
-Giant Studios and Leder Games. They are reproduced from the official card
-library (https://cards.buriedgiant.com) as fan reference. They are not licensed
-under the MIT License, and this repository grants no rights to them.
+Giant Studios, the publisher of Arcs (first published by Leder Games). They are
+reproduced from the official card library (https://cards.buriedgiant.com) as
+fan reference. They are not licensed under the MIT License, and this
+repository grants no rights to them.
 
 This project is unofficial and not affiliated with or endorsed by Buried Giant
 Studios or Leder Games.

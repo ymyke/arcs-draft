@@ -2,7 +2,7 @@
 
 A small web page for drafting leader and lore cards in [Arcs](https://boardgamegeek.com/boardgame/359871/arcs) before game night. Everyone picks in their own time, with room to think about combos, and setup at the table goes quickly. One person enters the names and deals. Every pick produces a new link, which goes to the next player. The whole draft lives in that link, so there is no server, no account and nothing to install.
 
-Unofficial fan tool, not affiliated with Leder Games or Buried Giant Studios. Card text comes from the [official card library](https://cards.buriedgiant.com).
+Unofficial fan tool, not affiliated with Buried Giant Studios, which publishes Arcs, or with Leder Games, its original publisher. Card text comes from the [official card library](https://cards.buriedgiant.com).
 
 ## How a draft works
 
@@ -53,4 +53,4 @@ Because links store cards by their position in `src/cards.js`, cards may only ev
 
 ## License
 
-The code is released under the [MIT License](LICENSE). The card names and card text in `src/cards.js` belong to Buried Giant Studios and Leder Games; they are reproduced as fan reference and are not covered by the MIT License. See [NOTICE](NOTICE).
+The code is released under the [MIT License](LICENSE). The card names and card text in `src/cards.js` belong to Buried Giant Studios, the publisher of Arcs; they are reproduced as fan reference and are not covered by the MIT License. See [NOTICE](NOTICE).

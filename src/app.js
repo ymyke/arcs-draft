@@ -59,7 +59,7 @@ function optionsSummary(options) {
 /* ---------- views ---------- */
 
 const creditsView = () => `
-  <span>Unofficial fan tool, not affiliated with Leder Games. Card text from the <a href="https://cards.buriedgiant.com" target="_blank" rel="noopener">official card library</a>.</span>
+  <span>Unofficial fan tool, not affiliated with Buried Giant Studios or Leder Games. Card text from the <a href="https://cards.buriedgiant.com" target="_blank" rel="noopener">official card library</a>.</span>
   <a href="${REPO_URL}" target="_blank" rel="noopener">Source on GitHub</a>`;
 
 const problemView = problem => (problem ? `<p class="err" role="alert">${esc(problem)}</p>` : '');
