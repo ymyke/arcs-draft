@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "Draft Arcs leader and lore cards over a shared link.",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22"

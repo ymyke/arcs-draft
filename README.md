@@ -50,3 +50,7 @@ Because links store cards by their position in `src/cards.js`, cards may only ev
 ### Card text and errata
 
 `npm run sync-cards` downloads the card library and applies published errata that change card text. It warns about any new erratum for these cards that hasn't been reviewed yet. The errata currently applied are Upstart's *Callow*, Agitator's *Irregular* and Living Structures' *Prune*.
+
+## License
+
+The code is released under the [MIT License](LICENSE). The card names and card text in `src/cards.js` belong to Buried Giant Studios and Leder Games; they are reproduced as fan reference and are not covered by the MIT License.
