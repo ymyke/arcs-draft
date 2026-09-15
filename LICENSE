@@ -19,14 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Card text exception
-
-This license covers the code in this repository only. The Arcs card names and
-card text in src/cards.js are the property of Buried Giant Studios and Leder
-Games. They are reproduced from the official card library
-(https://cards.buriedgiant.com) as fan reference, are not licensed under the
-MIT License, and grant no rights to anyone. This project is unofficial and not
-affiliated with or endorsed by Buried Giant Studios or Leder Games.

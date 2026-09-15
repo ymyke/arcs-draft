@@ -53,4 +53,4 @@ Because links store cards by their position in `src/cards.js`, cards may only ev
 
 ## License
 
-The code is released under the [MIT License](LICENSE). The card names and card text in `src/cards.js` belong to Buried Giant Studios and Leder Games; they are reproduced as fan reference and are not covered by the MIT License.
+The code is released under the [MIT License](LICENSE). The card names and card text in `src/cards.js` belong to Buried Giant Studios and Leder Games; they are reproduced as fan reference and are not covered by the MIT License. See [NOTICE](NOTICE).
