@@ -5,11 +5,14 @@ import {
   isComplete, limitOf, ownerOf, pickOrder, picksOf, roundCount,
 } from './draft.js';
 import { decodeDraft, encodeDraft } from './codec.js';
-import { escapeHTML as esc, renderCardText } from './text.js';
+import { escapeHTML as esc, plainCardText, renderCardText } from './text.js';
 
 const REPO_URL = 'https://github.com/ymyke/arcs-draft';
 const EMPTY_NAMES = () => ['', '', '', ''];
 const BAD_LINK = 'That doesn’t describe a legal draft. Check it was copied whole, or ask for it again.';
+
+// Scan sizes in the card library, so rows keep their shape while the images load.
+const SCAN_SIZE = { leader: 'width="827" height="1417"', lore: 'width="744" height="1039"' };
 
 const countSet = (cards, set) => cards.filter(card => card.set === set).length;
 const loreCount = n => (n === 1 ? 'a lore card' : `${n} lore cards`);
@@ -59,7 +62,7 @@ function optionsSummary(options) {
 /* ---------- views ---------- */
 
 const creditsView = () => `
-  <span>Unofficial fan tool, not affiliated with Buried Giant Studios or Leder Games. Card text from the <a href="https://cards.buriedgiant.com" target="_blank" rel="noopener">official card library</a>.</span>
+  <span>Unofficial fan tool, not affiliated with Buried Giant Studios or Leder Games. Card images and text from the <a href="https://cards.buriedgiant.com" target="_blank" rel="noopener">official card library</a>.</span>
   <a href="${REPO_URL}" target="_blank" rel="noopener">Source on GitHub</a>`;
 
 const problemView = problem => (problem ? `<p class="err" role="alert">${esc(problem)}</p>` : '');
@@ -141,18 +144,9 @@ function cardView(state, kind, slot) {
   const card = cardAt(draft, kind, slot);
   const owner = ownerOf(draft, kind, slot);
   const pickable = !state.justPicked && canPick(draft, kind, slot);
-  const number = String(card.number).padStart(2, '0');
-  const pack = card.set === 'pack' ? ' · Leaders & Lore' : '';
-  const footer = kind === 'lore'
-    ? `<div class="num"><span>Lore${pack}</span><span>${number}</span></div>`
-    : `<div class="num">Leader ${number}${pack}</div>`;
-  const face = `
-    <div class="face">
-      <div class="art"></div>
-      <div class="title">${esc(card.name)}</div>
-      <div class="body">${renderCardText(card.text)}</div>
-      ${footer}
-    </div>`;
+  const face = state.failedScans.has(card.image)
+    ? `<div class="face">${textFace(card, kind)}</div>`
+    : `<div class="face scanned">${scanFace(card, kind)}</div>`;
   if (pickable) {
     return `<button class="card ${kind} pickable" data-action="pick" data-kind="${kind}" data-slot="${slot}" aria-label="Take ${esc(card.name)}">${face}</button>`;
   }
@@ -163,6 +157,27 @@ function cardView(state, kind, slot) {
          role="button" tabindex="0" aria-pressed="${peeked}" aria-label="${esc(label)} — show clearly">
       ${face}${owner ? `<div class="claim">${esc(owner)}</div>` : ''}
     </div>`;
+}
+
+// The scans show the cards as printed, so a published correction is added underneath.
+function scanFace(card, kind) {
+  const errata = card.errata ? `<div class="errata"><span class="tag">Errata</span>${renderCardText(card.errata)}</div>` : '';
+  return `
+      <img class="scan" src="${esc(card.image)}" alt="${esc(`${card.name}. ${plainCardText(card.text)}`)}" ${SCAN_SIZE[kind]} loading="lazy" data-kind="${kind}">${errata}`;
+}
+
+// The transcribed card, shown when its scan cannot be loaded.
+function textFace(card, kind) {
+  const number = String(card.number).padStart(2, '0');
+  const pack = card.set === 'pack' ? ' · Leaders & Lore' : '';
+  const footer = kind === 'lore'
+    ? `<div class="num"><span>Lore${pack}</span><span>${number}</span></div>`
+    : `<div class="num">Leader ${number}${pack}</div>`;
+  return `
+      <div class="art"></div>
+      <div class="title">${esc(card.name)}</div>
+      <div class="body">${renderCardText(card.text)}</div>
+      ${footer}`;
 }
 
 function rowView(state, kind, slots, heading) {
@@ -309,6 +324,7 @@ export function mount(root, win = window) {
     justPicked: false,
     shareOpen: false,
     peek: null,
+    failedScans: new Set(),
     problem: null,
     names: EMPTY_NAMES(),
     options: { ...DEFAULT_OPTIONS },
@@ -395,6 +411,17 @@ export function mount(root, win = window) {
       render();
     },
   };
+
+  // Error events do not bubble, hence the capture. The set keeps re-renders from retrying.
+  root.addEventListener('error', event => {
+    const scan = event.target;
+    if (!scan.classList?.contains('scan')) return;
+    state.failedScans.add(scan.getAttribute('src'));
+    const card = [...LEADERS, ...LORE].find(candidate => candidate.image === scan.getAttribute('src'));
+    const face = scan.closest('.face');
+    face.classList.remove('scanned');
+    face.innerHTML = textFace(card, scan.dataset.kind);
+  }, true);
 
   root.addEventListener('click', event => {
     if (event.target.classList.contains('backdrop')) {

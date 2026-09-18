@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { LEADERS, LORE } from '../src/cards.js';
-import { escapeHTML, renderCardText } from '../src/text.js';
+import { escapeHTML, plainCardText, renderCardText } from '../src/text.js';
 
 test('escapes HTML before applying markup', () => {
   assert.equal(escapeHTML(`<b>"Tom" & 'Jerry'</b>`), '&lt;b&gt;&quot;Tom&quot; &amp; &#39;Jerry&#39;&lt;/b&gt;');
@@ -21,4 +21,11 @@ test('no raw markup is left over on any card', () => {
     const html = renderCardText(card.text).replace(/<[^>]+>/g, '');
     assert.doesNotMatch(html, /[*`{}$]/, card.name);
   }
+});
+
+test('plain text drops the markup and joins paragraphs, for text alternatives', () => {
+  assert.equal(
+    plainCardText('*Bold*. When you **battle**, roll {intercept}.\n \n***Do not*** flee. *(Really.)*'),
+    'Bold. When you battle, roll intercept. Do not flee. (Really.)',
+  );
 });

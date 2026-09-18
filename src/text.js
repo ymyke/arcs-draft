@@ -11,6 +11,11 @@ export function renderCardText(text) {
     .join('');
 }
 
+// The same text without markup, for an image's text alternative.
+export function plainCardText(text) {
+  return text.replace(/\{(\w+)\}/g, '$1').replace(/\*/g, '').split(/\n\s*\n/).map(paragraph => paragraph.trim()).join(' ');
+}
+
 function renderInline(text) {
   return text
     .replace(/\{(\w+)\}/g, '<span class="sym">$1</span>')

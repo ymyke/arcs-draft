@@ -2,6 +2,7 @@ import { afterEach, describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { decodeDraft, encodeDraft } from '../src/codec.js';
 import { DEFAULT_OPTIONS, applyPick, dealDraft } from '../src/draft.js';
+import { LEADERS } from '../src/cards.js';
 import { PLAYERS, dealOnPage, openPage, seededRandom } from './helpers.js';
 
 const pages = [];
@@ -109,6 +110,43 @@ describe('a draft passed around by link', () => {
   });
 });
 
+describe('card faces', () => {
+  // The first five leaders in a row, so Upstart (with its erratum) sits in slot 3.
+  const boardWithUpstart = () => {
+    const { draft } = dealDraft(PLAYERS, DEFAULT_OPTIONS, seededRandom(6));
+    return open(`#${encodeDraft({ ...draft, rows: { ...draft.rows, leader: [0, 1, 2, 3, 4] } })}`);
+  };
+  const leader = (page, slot) => page.$(`.card.leader[data-slot="${slot}"]`);
+
+  test('every card shows its scan, with the card text as the text alternative', () => {
+    const page = boardWithUpstart();
+    assert.equal(page.$$('.card').length, page.$$('.card img.scan').length);
+    const scan = leader(page, 0).querySelector('img.scan');
+    assert.equal(scan.getAttribute('src'), LEADERS[0].image);
+    assert.match(scan.alt, /^Elder\. Beloved\. After defending in battle, you may influence/);
+    assert.doesNotMatch(scan.alt, /\*/);
+  });
+
+  test('a card with an erratum shows the corrected ability under its scan', () => {
+    const page = boardWithUpstart();
+    const note = leader(page, 3).querySelector('.errata');
+    assert.match(note.textContent.replace(/\s+/g, ' '), /Errata\s*Callow\. You cannot tax cities that you do not control\./);
+    assert.equal(leader(page, 0).querySelector('.errata'), null);
+  });
+
+  test('a scan that fails to load gives way to the transcribed card, and stays that way', () => {
+    const page = boardWithUpstart();
+    leader(page, 0).querySelector('img.scan').dispatchEvent(new page.window.Event('error'));
+    assert.equal(leader(page, 0).querySelector('img.scan'), null);
+    assert.equal(leader(page, 0).querySelector('.title').textContent, 'Elder');
+    assert.match(leader(page, 0).querySelector('.body').textContent, /Rivals cannot Ransack the Court/);
+    assert.ok(leader(page, 1).querySelector('img.scan'), 'other cards keep their scans');
+
+    page.click('[data-action="show-share"]');
+    assert.equal(leader(page, 0).querySelector('img.scan'), null, 'a re-render does not retry the broken scan');
+  });
+});
+
 describe('links and dialogs', () => {
   const draftHash = () => `#${encodeDraft(dealDraft(PLAYERS, DEFAULT_OPTIONS, seededRandom(8)).draft)}`;
 
@@ -161,7 +199,7 @@ describe('links and dialogs', () => {
   test('player names cannot inject markup', () => {
     const { draft } = dealDraft(['<img src=x>', 'Bo'], DEFAULT_OPTIONS, seededRandom(2));
     const page = open(`#${encodeDraft(draft)}`);
-    assert.equal(page.$('img'), null);
+    assert.equal(page.$('img[src="x"]'), null);
     assert.ok(page.text('.roster').includes('<img src=x>'));
   });
 });

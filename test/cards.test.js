@@ -24,3 +24,18 @@ test('published text errata are applied', () => {
   assert.match(text('Agitator'), /and is intercepted,/);
   assert.match(text('Living Structures'), /Replace a Loyal starport in a slot with a Loyal city/);
 });
+
+test('every card points at its scan in the official card library', () => {
+  const file = (prefix, card) => `${prefix}${String(card.number).padStart(2, '0')}.webp`;
+  for (const [cards, prefix] of [[LEADERS, 'LEAD'], [LORE, 'L']]) {
+    for (const card of cards) {
+      assert.equal(card.image, `https://cardcdn.buriedgiant.com/cards/arcs/en-US/${file(prefix, card)}`, card.name);
+    }
+  }
+});
+
+test('only cards with text errata carry the corrected sentence, since their scans show the old one', () => {
+  const corrected = [...LEADERS, ...LORE].filter(card => card.errata);
+  assert.deepEqual(corrected.map(card => card.name).sort(), ['Agitator', 'Living Structures', 'Upstart']);
+  for (const card of corrected) assert.ok(card.text.includes(card.errata), card.name);
+});

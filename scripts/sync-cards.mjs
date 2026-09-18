@@ -7,10 +7,12 @@
 import { writeFile } from 'node:fs/promises';
 
 const LIBRARY = 'https://cardcdn.buriedgiant.com';
+const IMAGE = /^https:\/\/cardcdn\.buriedgiant\.com\/cards\/arcs\/en-US\/\w+\.webp$/;
 const OUTPUT = new URL('../src/cards.js', import.meta.url);
 const SETS = { arcsbasegame: 'base', 'leaders-lore': 'pack' };
 
-// Published errata that change card text, applied as exact replacements.
+// Published errata that change card text, applied as exact replacements. The card scans still
+// show the printed wording, so each corrected card also carries its corrected ability as `errata`.
 const TEXT_ERRATA = {
   Upstart: [
     '*Callow*. You can only **tax** Loyal cities if you control them.',
@@ -74,7 +76,14 @@ function applyErrata(card) {
   if (!erratum) return card;
   const [before, after] = erratum;
   if (!card.text.includes(before)) throw new Error(`Erratum for ${card.name} no longer matches the library text`);
-  return { ...card, text: card.text.replace(before, after) };
+  const text = card.text.replace(before, after);
+  return { ...card, text, errata: text.split('\n \n').find(paragraph => paragraph.includes(after)) };
+}
+
+// The page loads scans straight from the library, so a changed URL scheme should fail here.
+function imageOf(card) {
+  if (!IMAGE.test(card.image)) throw new Error(`Unexpected image URL for ${card.name}: ${card.image}`);
+  return card.image;
 }
 
 function toCards(all, tag, idPattern) {
@@ -85,6 +94,7 @@ function toCards(all, tag, idPattern) {
       set: SETS[card.product],
       name: card.name,
       text: cleanText(card.text),
+      image: imageOf(card),
     }))
     .sort((a, b) => a.number - b.number)
     .map(applyErrata);
@@ -112,7 +122,12 @@ function checkErrata(errata, names) {
 }
 
 const literal = cards => cards
-  .map(card => `  { number: ${card.number}, set: '${card.set}', name: ${JSON.stringify(card.name)},\n    text: ${JSON.stringify(card.text)} },`)
+  .map(card => [
+    `  { number: ${card.number}, set: '${card.set}', name: ${JSON.stringify(card.name)},`,
+    `    image: ${JSON.stringify(card.image)},`,
+    ...(card.errata ? [`    errata: ${JSON.stringify(card.errata)},`] : []),
+    `    text: ${JSON.stringify(card.text)} },`,
+  ].join('\n'))
   .join('\n');
 
 const all = decompress(await fetchJSON('cards.min.json'));
